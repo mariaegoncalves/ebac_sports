@@ -5,7 +5,7 @@ import Produtos from './containers/Produtos'
 import { GlobalStyle } from './styles'
 import { useGetProdutosQuery } from './services/api' // Importa o hook da API
 import { adicionarAoCarrinho } from './features/carrinhoSlice'
-import { adicionarFavorito, removerFavorito } from './features/favoritosSlice' // Importando as ações de favoritos
+// import { adicionarFavorito, removerFavorito } from './features/favoritosSlice' // Importando as ações de favoritos
 
 export type Produto = {
   id: number
@@ -17,8 +17,8 @@ export type Produto = {
 function App() {
   const dispatch = useDispatch()
   const { data: produtos = [], isLoading } = useGetProdutosQuery() // Usando o hook da API
-  const carrinho = useSelector((state: any) => state.carrinho.produtos) // Obtendo o carrinho do Redux
-  const favoritos = useSelector((state: any) => state.favoritos.produtos) // Obtendo favoritos do Redux
+  const carrinho = useSelector((state: RootState) => state.carrinho.produtos)
+  const favoritos = useSelector((state: RootState) => state.favoritos || [])
 
   useEffect(() => {
     if (isLoading) {

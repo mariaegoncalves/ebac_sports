@@ -1,4 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
+import { configureStore } from '@reduxjs/toolkit'
+import favoritosReducer from './features/favoritosSlice'
 
 interface Favorito {
   id: number
@@ -11,7 +13,14 @@ interface FavoritosState {
   favoritos: Favorito[]
 }
 
-const initialState: FavoritosState = {
+const store = configureStore({
+  reducer: {
+    favoritos: favoritosReducer,
+    carrinho: carrinhoReducer
+  }
+})
+
+const initialState = {
   favoritos: []
 }
 
