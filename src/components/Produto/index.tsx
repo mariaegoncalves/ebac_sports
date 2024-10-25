@@ -5,7 +5,7 @@ type Props = {
   produto: ProdutoType
   aoComprar: (produto: ProdutoType) => void
   favoritar: (produto: ProdutoType) => void
-  estaNosFavoritos: boolean
+  estaNosFavoritos: boolean // Esta prop indica se o produto está nos favoritos
 }
 
 export const paraReal = (valor: number) =>

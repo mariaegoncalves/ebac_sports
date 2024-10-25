@@ -1,8 +1,11 @@
-import { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import Header from './components/Header'
 import Produtos from './containers/Produtos'
-
 import { GlobalStyle } from './styles'
+import { useGetProdutosQuery } from './services/api' // Importa o hook da API
+import { adicionarAoCarrinho } from './features/carrinhoSlice'
+import { adicionarFavorito, removerFavorito } from './features/favoritosSlice' // Importando as ações de favoritos
 
 export type Produto = {
   id: number
@@ -12,30 +15,32 @@ export type Produto = {
 }
 
 function App() {
-  const [produtos, setProdutos] = useState<Produto[]>([])
-  const [carrinho, setCarrinho] = useState<Produto[]>([])
-  const [favoritos, setFavoritos] = useState<Produto[]>([])
+  const dispatch = useDispatch()
+  const { data: produtos = [], isLoading } = useGetProdutosQuery() // Usando o hook da API
+  const carrinho = useSelector((state: any) => state.carrinho.produtos) // Obtendo o carrinho do Redux
+  const favoritos = useSelector((state: any) => state.favoritos.produtos) // Obtendo favoritos do Redux
 
   useEffect(() => {
-    fetch('https://fake-api-tau.vercel.app/api/ebac_sports')
-      .then((res) => res.json())
-      .then((res) => setProdutos(res))
-  }, [])
+    if (isLoading) {
+      console.log('Carregando produtos...')
+    }
+  }, [isLoading])
 
-  function adicionarAoCarrinho(produto: Produto) {
-    if (carrinho.find((p) => p.id === produto.id)) {
+  function handleAdicionarAoCarrinho(produto: Produto) {
+    const itemExistente = carrinho.find((p: Produto) => p.id === produto.id)
+    if (itemExistente) {
       alert('Item já adicionado')
     } else {
-      setCarrinho([...carrinho, produto])
+      dispatch(adicionarAoCarrinho(produto)) // Dispara a ação do Redux para adicionar ao carrinho
     }
   }
 
-  function favoritar(produto: Produto) {
-    if (favoritos.find((p) => p.id === produto.id)) {
-      const favoritosSemProduto = favoritos.filter((p) => p.id !== produto.id)
-      setFavoritos(favoritosSemProduto)
+  function handleFavoritar(produto: Produto) {
+    const produtoFavorito = favoritos.find((p: Produto) => p.id === produto.id)
+    if (produtoFavorito) {
+      dispatch(removerFavorito(produto.id)) // Remove o favorito
     } else {
-      setFavoritos([...favoritos, produto])
+      dispatch(adicionarFavorito(produto)) // Adiciona o favorito
     }
   }
 
@@ -43,12 +48,12 @@ function App() {
     <>
       <GlobalStyle />
       <div className="container">
-        <Header favoritos={favoritos} itensNoCarrinho={carrinho} />
+        <Header favoritos={favoritos || []} itensNoCarrinho={carrinho || []} />
         <Produtos
           produtos={produtos}
           favoritos={favoritos}
-          favoritar={favoritar}
-          adicionarAoCarrinho={adicionarAoCarrinho}
+          favoritar={handleFavoritar} // Passa a função de favoritar
+          adicionarAoCarrinho={handleAdicionarAoCarrinho} // Passa a função de adicionar ao carrinho
         />
       </div>
     </>
